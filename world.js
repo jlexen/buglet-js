@@ -1,0 +1,160 @@
+const gridSize = 50;
+const MAX_VEG_STARTUP = 300;
+const MIN_VEG_STARTUP = 200;
+const MAX_BUGLET_STARTUP = 75;
+const MIN_BUGLET_STARTUP = 60;
+
+const CELL_TYPE = {
+    EMPTY: "empty",
+    VEGETATION: "vegetation",
+    BUG: "bug"
+}
+
+class World {
+    constructor() {
+        this.buglets = [];
+    }
+    
+    initializeGrid = function (size) {
+        this.grid = new Array(size);
+        for (var i = 0; i < size; i++) {
+            this.grid[i] = new Array(size);
+            for (var j = 0; j < size; j++) {
+                this.grid[i][j] = new Object();
+            }
+        }
+        this.gridSize = size;
+    };
+
+    drawGrid = function () {
+        var table = document.createElement(table);
+        var tableBody = document.createElement('tbody');
+        for (var i = 0; i < this.grid.length; i++) {
+            var row = document.createElement('tr');
+            var rowData = this.grid[i];
+            for (var j = 0; j < this.grid[i].length; j++) {
+                var td = document.createElement('td');
+                td.appendChild(document.createTextNode(""));
+                row.appendChild(td);
+                this.grid[i][j].td = td;
+                this.setCellEmpty(i, j, this);
+            }
+            
+            tableBody.appendChild(row);
+        }
+        
+        table.appendChild(tableBody);
+        document.body.appendChild(table);
+    };
+    
+    initializeVegetation = function () {
+        var vegToCreate = Math.floor(MAX_VEG_STARTUP * Math.random());
+        if (vegToCreate < MIN_VEG_STARTUP)
+            vegToCreate = MIN_VEG_STARTUP;
+        for (var i = 0; i < vegToCreate; i++) {
+            var x = Math.floor(gridSize * Math.random());
+            var y = Math.floor(gridSize * Math.random());
+            this.setCellVegetation(x, y);
+        }
+    };
+    
+    initializeBug = function () {
+        var bugletsToCreate = Math.floor(MAX_BUGLET_STARTUP * Math.random());
+
+        if (bugletsToCreate < MIN_BUGLET_STARTUP)
+            bugletsToCreate = MIN_BUGLET_STARTUP;
+
+        for (var i = 0; i < bugletsToCreate; i++) {
+            var x = Math.floor(gridSize * Math.random());
+            var y = Math.floor(gridSize * Math.random());
+            var buglet = new Buglet(this, new Location(x, y));
+            this.buglets.push(buglet);
+            this.grid[x][y].actor = buglet;
+            this.setCellBug(x, y, this);
+        }
+        var scope = this;
+
+        setInterval(() => this.moveBugs(this), 500);
+    };
+    
+    moveBugs(scope) {
+        for (var i = 0; i < scope.buglets.length; i++) {
+            try{
+                var buglet = scope.buglets[i];
+                var action = buglet.requestAction();
+                if (action && action.ActionType == ActionType.MOVE) {
+                    scope.setCellEmpty(buglet.Location.X, buglet.Location.Y, scope);
+                    scope.grid[action.MoveLocation.X, action.MoveLocation.Y].actor = buglet;
+                    scope.setCellBug(action.MoveLocation.X, action.MoveLocation.Y, scope);
+                    buglet.Location = action.MoveLocation;
+                }
+            } catch(e)
+            {
+                console.log(e);
+            }      
+        }
+    }
+
+    findClosestFood(from, maxDistance)
+    {
+        
+        var startX = from.X - maxDistance;
+        if(startX < 0) startX = 0;
+
+        var startY = from.Y - maxDistance;
+        if(startY < 0) startY = 0;
+
+        var endX = from.X + maxDistance;
+        if(endX > this.gridSize - 1) endX = this.gridSize - 1;
+
+        var endY = from.Y + maxDistance;
+        if(endY > this.gridSize - 1) endY = this.gridSize - 1;
+
+        var closestLocation;
+        var closestDistance;
+        for(var i = startX; i <= endX; i++)
+        {
+            for(var j = startY; j <= endY; j++)
+            {
+                if(this.grid[i][j].type != CELL_TYPE.VEGETATION) continue;
+
+                var location = new Location(i,j)
+                var distance = Util.distanceFrom(from, location);
+                if(!closestLocation || distance < closestDistance)
+                {
+                    closestLocation = location;
+                    closestDistance = distance; 
+                }
+            }
+        }
+
+        return closestLocation;
+    }
+    
+    setCellEmpty = function (x, y, that) {
+        var cell = that.grid[x][y];
+        cell.td.style.backgroundColor = "white";
+        cell.type = CELL_TYPE.EMPTY;
+        if (cell.actor) {
+            cell.actor = null;
+        }
+    };
+    
+    setCellVegetation = function (x, y) {
+        var cell = this.grid[x][y];
+        cell.td.style.backgroundColor = "green";
+        cell.type = CELL_TYPE.VEGETATION;
+    };
+    
+    setCellBug = function (x, y, that) {
+        var cell = that.grid[x][y];
+        cell.td.style.backgroundColor = "red";
+        cell.type = CELL_TYPE.BUG;
+    };
+
+}
+
+
+
+
+
