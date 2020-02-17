@@ -3,15 +3,15 @@ class Buglet {
 
     constructor(world, location) {
         this.world = world;
-        this.Location = location;
-        this.SightDistance = 5;
+        this.location = location;
+        this.sightDistance = 5;
         this.size = 50;
     }
 
     requestAction = function() {
         var foodMoveTo = this.getMoveToFoodAction();
 
-        if(foodMoveTo.ActionType == ActionType.MOVE) return foodMoveTo;
+        if(foodMoveTo.actionType == ActionType.MOVE) return foodMoveTo;
 
         var wander = this.getWanderAction();
 
@@ -21,22 +21,22 @@ class Buglet {
     getWanderAction = function()
     {
         var random = Math.random();
-        var newLocation = new Location(this.Location.X, this.Location.Y);
+        var newLocation = new Location(this.location.x, this.location.y);
 
-        if(random < .25 && newLocation.X > 0) {
-            newLocation.X--;
+        if(random < .25 && newLocation.x > 0) {
+            newLocation.x--;
         } 
-        else if(random >= .25 && random < .5 && newLocation.X < this.world.gridSize - 2)
+        else if(random >= .25 && random < .5 && newLocation.x < this.world.gridSize - 2)
         {
-            newLocation.X++;
+            newLocation.x++;
         } 
-        else if(random >= .5 && random < .75 && newLocation.Y > 0)
+        else if(random >= .5 && random < .75 && newLocation.y > 0)
         {
-            newLocation.Y--;
+            newLocation.y--;
         } 
-        else if(newLocation.Y < this.world.gridSize - 2)
+        else if(newLocation.y < this.world.gridSize - 2)
         {
-            newLocation.Y++;
+            newLocation.y++;
         }
         else
         {
@@ -48,34 +48,34 @@ class Buglet {
 
     getMoveToFoodAction = function()
     {
-        var moveTowards = world.findClosestFood(this.Location, this.SightDistance);
+        var moveTowards = world.findClosestFood(this.location, this.sightDistance);
         if(!moveTowards) return new Action(ActionType.STAY);
 
         var moveTo;
-        if(moveTowards.X < this.Location.X) {
-            moveTo = new Location(this.Location.X - 1, this.Location.Y);
+        if(moveTowards.x < this.location.x) {
+            moveTo = new Location(this.location.x - 1, this.location.y);
         }
 
-        if(moveTowards.Y < this.Location.Y) {
-            moveTo = new Location(this.Location.X, this.Location.Y - 1);
+        if(moveTowards.y < this.location.y) {
+            moveTo = new Location(this.location.x, this.location.y - 1);
         }
 
-        if(moveTowards.X > this.Location.X) {
-            moveTo = new Location(this.Location.X + 1, this.Location.Y);
+        if(moveTowards.x > this.location.x) {
+            moveTo = new Location(this.location.x + 1, this.location.y);
         }
 
-        if(moveTowards.Y > this.Location.Y) {
-            moveTo = new Location(this.Location.X, this.Location.Y + 1);
+        if(moveTowards.y > this.location.y) {
+            moveTo = new Location(this.location.x, this.location.y + 1);
         }
 
         return new Action(ActionType.MOVE, moveTo);
     }
 
     getMoveDownAction = function() {
-        var x2 = this.Location.X + 1;
-        var y2 = this.Location.Y;
-        // this.Location.X = x2;
-        // this.Location.Y = y2;
+        var x2 = this.location.x + 1;
+        var y2 = this.location.y;
+        // this.location.x = x2;
+        // this.location.y = y2;
 
         return new Action(ActionType.MOVE, new Location(x2, y2))  
     }

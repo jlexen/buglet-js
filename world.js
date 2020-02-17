@@ -8,12 +8,6 @@ const MAX_ENERGY_PLANTLET = 100;
 const MIN_ENERGY_PLANTLET = 50;
 const ENERGY_USE_RATIO = .2;
 
-const CELL_TYPE = {
-    EMPTY: "empty",
-    PLANTLET: "plantlet",
-    BUG: "bug"
-}
-
 class World {
     constructor() {
         this.buglets = [];
@@ -88,21 +82,21 @@ class World {
             try{
                 var buglet = scope.buglets[i];
                 var action = buglet.requestAction();
-                if (action && action.ActionType == ActionType.MOVE) {
+                if (action && action.actionType == ActionType.MOVE) {
 
                     var energyUsed = this.getEnergyUsed(buglet.size);
                     buglet.size-= energyUsed;
 
                     // todo: this function is getting freaking bloated
-                    if(this.getCellType(action.MoveLocation, scope) == CELL_TYPE.PLANTLET)
+                    if(this.getCellType(action.moveLocation, scope) == CELL_TYPE.PLANTLET)
                     {
-                        buglet.size+= this.getCellSize(action.MoveLocation, scope);
+                        buglet.size+= this.getCellSize(action.moveLocation, scope);
                     }
 
-                    this.setCellEmpty(buglet.Location.X, buglet.Location.Y, scope);
-                    this.grid[action.MoveLocation.X, action.MoveLocation.Y].actor = buglet;
-                    this.setCellBug(action.MoveLocation, buglet, scope);
-                    buglet.Location = action.MoveLocation;
+                    this.setCellEmpty(buglet.location.x, buglet.location.y, scope);
+                    this.grid[action.moveLocation.x, action.moveLocation.y].actor = buglet;
+                    this.setCellBug(action.moveLocation, buglet, scope);
+                    buglet.location = action.moveLocation;
                 }
             } catch(e)
             {
@@ -114,16 +108,16 @@ class World {
     findClosestFood(from, maxDistance)
     {
         
-        var startX = from.X - maxDistance;
+        var startX = from.x - maxDistance;
         if(startX < 0) startX = 0;
 
-        var startY = from.Y - maxDistance;
+        var startY = from.y - maxDistance;
         if(startY < 0) startY = 0;
 
-        var endX = from.X + maxDistance;
+        var endX = from.x + maxDistance;
         if(endX > this.gridSize - 1) endX = this.gridSize - 1;
 
-        var endY = from.Y + maxDistance;
+        var endY = from.y + maxDistance;
         if(endY > this.gridSize - 1) endY = this.gridSize - 1;
 
         var closestLocation;
@@ -157,7 +151,7 @@ class World {
     };
     
     setCellPlantlet = function (location, plantlet, that) {
-        var cell = that.grid[location.X][location.Y];
+        var cell = that.grid[location.x][location.y];
 
         var sizeValue =  (256 / MAX_ENERGY_PLANTLET) * plantlet.size;
         cell.td.style.backgroundColor = Util.rgbString(0, sizeValue, 0); // brighter green = more energy
@@ -166,7 +160,7 @@ class World {
     };
     
     setCellBug = function (location, buglet, that) {
-        var cell = that.grid[location.X][location.Y];
+        var cell = that.grid[location.x][location.y];
 
         var sizeValue = (256 / MAX_SIZE_BUGLET) * buglet.size; 
         cell.td.style.backgroundColor = Util.rgbString(256, 256 - sizeValue, 0); // yellow = low energy, red = high energy
@@ -176,7 +170,7 @@ class World {
 
     getCellType = function(location, that)
     {
-        var cell = that.grid[location.X][location.Y];
+        var cell = that.grid[location.x][location.y];
         if(cell) return cell.type;
 
         return null;
@@ -184,7 +178,7 @@ class World {
 
     getCellActor = function(location, that)
     {
-        var cell = that.grid[location.X][location.Y];
+        var cell = that.grid[location.x][location.y];
         if(cell) return cell.actor;
 
         return null;
@@ -192,7 +186,7 @@ class World {
 
     getCellSize = function(location, that)
     {
-        var cell = that.grid[location.X][location.Y];
+        var cell = that.grid[location.x][location.y];
         if(cell && cell.actor) return cell.actor.size;
 
         return 0;

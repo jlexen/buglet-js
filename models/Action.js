@@ -1,6 +1,6 @@
 class Action {
     constructor(actionType, moveLocation) {
-        this.ActionType = actionType;
-        this.MoveLocation = moveLocation;
+        this.actionType = actionType;
+        this.moveLocation = moveLocation;
     }
 }
