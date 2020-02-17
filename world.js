@@ -1,12 +1,16 @@
 const gridSize = 50;
 const MAX_VEG_STARTUP = 300;
 const MIN_VEG_STARTUP = 200;
-const MAX_BUGLET_STARTUP = 75;
-const MIN_BUGLET_STARTUP = 60;
+const MAX_BUGLET_STARTUP = 20;
+const MIN_BUGLET_STARTUP = 10;
+const MAX_SIZE_BUGLET = 100;
+const MAX_ENERGY_PLANTLET = 100;
+const MIN_ENERGY_PLANTLET = 50;
+const ENERGY_USE_RATIO = .2;
 
 const CELL_TYPE = {
     EMPTY: "empty",
-    VEGETATION: "vegetation",
+    PLANTLET: "plantlet",
     BUG: "bug"
 }
 
@@ -54,7 +58,9 @@ class World {
         for (var i = 0; i < vegToCreate; i++) {
             var x = Math.floor(gridSize * Math.random());
             var y = Math.floor(gridSize * Math.random());
-            this.setCellVegetation(x, y);
+            var location = new Location(x, y);
+            var plantlet = new Plantlet(Math.random() * (MAX_ENERGY_PLANTLET - MIN_ENERGY_PLANTLET) + MIN_ENERGY_PLANTLET);
+            this.setCellPlantlet(location, plantlet, this);
         }
     };
     
@@ -67,10 +73,10 @@ class World {
         for (var i = 0; i < bugletsToCreate; i++) {
             var x = Math.floor(gridSize * Math.random());
             var y = Math.floor(gridSize * Math.random());
-            var buglet = new Buglet(this, new Location(x, y));
+            var location = new Location(x, y);
+            var buglet = new Buglet(this, location);
             this.buglets.push(buglet);
-            this.grid[x][y].actor = buglet;
-            this.setCellBug(x, y, this);
+            this.setCellBug(location, buglet, this);
         }
         var scope = this;
 
@@ -78,14 +84,24 @@ class World {
     };
     
     moveBugs(scope) {
-        for (var i = 0; i < scope.buglets.length; i++) {
+        for (var i = 0; i < this.buglets.length; i++) {
             try{
                 var buglet = scope.buglets[i];
                 var action = buglet.requestAction();
                 if (action && action.ActionType == ActionType.MOVE) {
-                    scope.setCellEmpty(buglet.Location.X, buglet.Location.Y, scope);
-                    scope.grid[action.MoveLocation.X, action.MoveLocation.Y].actor = buglet;
-                    scope.setCellBug(action.MoveLocation.X, action.MoveLocation.Y, scope);
+
+                    var energyUsed = this.getEnergyUsed(buglet.size);
+                    buglet.size-= energyUsed;
+
+                    // todo: this function is getting freaking bloated
+                    if(this.getCellType(action.MoveLocation, scope) == CELL_TYPE.PLANTLET)
+                    {
+                        buglet.size+= this.getCellSize(action.MoveLocation, scope);
+                    }
+
+                    this.setCellEmpty(buglet.Location.X, buglet.Location.Y, scope);
+                    this.grid[action.MoveLocation.X, action.MoveLocation.Y].actor = buglet;
+                    this.setCellBug(action.MoveLocation, buglet, scope);
                     buglet.Location = action.MoveLocation;
                 }
             } catch(e)
@@ -116,7 +132,7 @@ class World {
         {
             for(var j = startY; j <= endY; j++)
             {
-                if(this.grid[i][j].type != CELL_TYPE.VEGETATION) continue;
+                if(this.grid[i][j].type != CELL_TYPE.PLANTLET) continue;
 
                 var location = new Location(i,j)
                 var distance = Util.distanceFrom(from, location);
@@ -140,18 +156,52 @@ class World {
         }
     };
     
-    setCellVegetation = function (x, y) {
-        var cell = this.grid[x][y];
-        cell.td.style.backgroundColor = "green";
-        cell.type = CELL_TYPE.VEGETATION;
+    setCellPlantlet = function (location, plantlet, that) {
+        var cell = that.grid[location.X][location.Y];
+
+        var sizeValue =  (256 / MAX_ENERGY_PLANTLET) * plantlet.size;
+        cell.td.style.backgroundColor = Util.rgbString(0, sizeValue, 0); // brighter green = more energy
+        cell.actor = plantlet
+        cell.type = CELL_TYPE.PLANTLET;
     };
     
-    setCellBug = function (x, y, that) {
-        var cell = that.grid[x][y];
-        cell.td.style.backgroundColor = "red";
+    setCellBug = function (location, buglet, that) {
+        var cell = that.grid[location.X][location.Y];
+
+        var sizeValue = (256 / MAX_SIZE_BUGLET) * buglet.size; 
+        cell.td.style.backgroundColor = Util.rgbString(256, 256 - sizeValue, 0); // yellow = low energy, red = high energy
+        cell.actor = buglet;
         cell.type = CELL_TYPE.BUG;
     };
 
+    getCellType = function(location, that)
+    {
+        var cell = that.grid[location.X][location.Y];
+        if(cell) return cell.type;
+
+        return null;
+    }
+
+    getCellActor = function(location, that)
+    {
+        var cell = that.grid[location.X][location.Y];
+        if(cell) return cell.actor;
+
+        return null;
+    }
+
+    getCellSize = function(location, that)
+    {
+        var cell = that.grid[location.X][location.Y];
+        if(cell && cell.actor) return cell.actor.size;
+
+        return 0;
+    }
+
+    getEnergyUsed = function(size)
+    {
+        return size * ENERGY_USE_RATIO;
+    }
 }
 
 

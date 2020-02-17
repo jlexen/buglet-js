@@ -5,6 +5,7 @@ class Buglet {
         this.world = world;
         this.Location = location;
         this.SightDistance = 5;
+        this.size = 50;
     }
 
     requestAction = function() {
