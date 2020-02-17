@@ -10,3 +10,7 @@ function buildWorld(){
 
     world.initializeBug();
 }
+
+function startStop(){
+    this.world.paused = !this.world.paused;
+}

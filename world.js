@@ -1,4 +1,4 @@
-const gridSize = 50;
+const gridSize = 40;
 const MAX_VEG_STARTUP = 300;
 const MIN_VEG_STARTUP = 200;
 const MAX_BUGLET_STARTUP = 20;
@@ -7,10 +7,13 @@ const MAX_SIZE_BUGLET = 100;
 const MAX_ENERGY_PLANTLET = 100;
 const MIN_ENERGY_PLANTLET = 50;
 const ENERGY_USE_RATIO = .2;
+const MAX_PLANTLETS_TO_RESPAWN = 5;
+const CLOCK_SPEED = 500;
 
 class World {
     constructor() {
         this.buglets = [];
+        this.paused = false;
     }
     
     initializeGrid = function (size) {
@@ -50,13 +53,22 @@ class World {
         if (vegToCreate < MIN_VEG_STARTUP)
             vegToCreate = MIN_VEG_STARTUP;
         for (var i = 0; i < vegToCreate; i++) {
-            var x = Math.floor(gridSize * Math.random());
-            var y = Math.floor(gridSize * Math.random());
-            var location = new Location(x, y);
-            var plantlet = new Plantlet(Math.random() * (MAX_ENERGY_PLANTLET - MIN_ENERGY_PLANTLET) + MIN_ENERGY_PLANTLET);
-            this.setCellPlantlet(location, plantlet, this);
+            this.spawnRandomPlantlet();
         }
     };
+
+    spawnRandomPlantlet() {
+        var x = Math.floor(gridSize * Math.random());
+        var y = Math.floor(gridSize * Math.random());
+        var location = new Location(x, y);
+
+        // check and make sure cell is empty
+        if(this.getCellType(location) == CELL_TYPE.EMPTY)
+        {
+            var plantlet = new Plantlet(Math.random() * (MAX_ENERGY_PLANTLET - MIN_ENERGY_PLANTLET) + MIN_ENERGY_PLANTLET);
+            this.setCellPlantlet(location, plantlet);    
+        }
+    }
     
     initializeBug = function () {
         var bugletsToCreate = Math.floor(MAX_BUGLET_STARTUP * Math.random());
@@ -72,42 +84,55 @@ class World {
             this.buglets.push(buglet);
             this.setCellBug(location, buglet, this);
         }
-        var scope = this;
 
-        setInterval(() => this.moveBugs(this), 500);
+        setInterval(() => this.runClock(), CLOCK_SPEED);
     };
     
-    moveBugs(scope) {
-        for (var i = 0; i < this.buglets.length; i++) {
-            try{
-                var buglet = scope.buglets[i];
-                var action = buglet.requestAction();
-                if (action && action.actionType == ActionType.MOVE) {
+    runClock() {
+        if(this.paused) return;
 
-                    var energyUsed = this.getEnergyUsed(buglet.size);
-                    buglet.size-= energyUsed;
+        // have bugs do their thing
+        for (var i = 0; i < this.buglets.length; i++) 
+        {
+            var buglet = this.buglets[i];
+            this.performBugletAction(buglet);
+        }      
 
-                    // todo: this function is getting freaking bloated
-                    if(this.getCellType(action.moveLocation, scope) == CELL_TYPE.PLANTLET)
-                    {
-                        buglet.size+= this.getCellSize(action.moveLocation, scope);
-                    }
+        // spawn plantlets
+        var plantletsToResponse = MAX_PLANTLETS_TO_RESPAWN * Math.random();
+        for (var i = 0; i < plantletsToResponse; i++)
+        {
+            this.spawnRandomPlantlet()
+        }
+    }    
 
-                    this.setCellEmpty(buglet.location.x, buglet.location.y, scope);
-                    this.grid[action.moveLocation.x, action.moveLocation.y].actor = buglet;
-                    this.setCellBug(action.moveLocation, buglet, scope);
-                    buglet.location = action.moveLocation;
+    performBugletAction(buglet) {
+        try{
+            var action = buglet.requestAction();
+            if (action && action.actionType == ActionType.MOVE) {
+
+                var energyUsed = this.getEnergyUsed(buglet.size);
+                buglet.size-= energyUsed;
+
+                // todo: this function is getting freaking bloated
+                if(this.getCellType(action.moveLocation) == CELL_TYPE.PLANTLET)
+                {
+                    buglet.size+= this.getCellSize(action.moveLocation);
                 }
-            } catch(e)
-            {
-                console.log(e);
-            }      
+
+                this.setCellEmpty(buglet.location.x, buglet.location.y);
+                this.grid[action.moveLocation.x, action.moveLocation.y].actor = buglet;
+                this.setCellBug(action.moveLocation, buglet);
+                buglet.location = action.moveLocation;
+            }
+        } catch(e)
+        {
+            console.log(e);
         }
     }
 
     findClosestFood(from, maxDistance)
-    {
-        
+    {        
         var startX = from.x - maxDistance;
         if(startX < 0) startX = 0;
 
@@ -141,8 +166,8 @@ class World {
         return closestLocation;
     }
     
-    setCellEmpty = function (x, y, that) {
-        var cell = that.grid[x][y];
+    setCellEmpty = function (x, y) {
+        var cell = this.grid[x][y];
         cell.td.style.backgroundColor = "white";
         cell.type = CELL_TYPE.EMPTY;
         if (cell.actor) {
@@ -150,8 +175,8 @@ class World {
         }
     };
     
-    setCellPlantlet = function (location, plantlet, that) {
-        var cell = that.grid[location.x][location.y];
+    setCellPlantlet = function (location, plantlet) {
+        var cell = this.grid[location.x][location.y];
 
         var sizeValue =  (256 / MAX_ENERGY_PLANTLET) * plantlet.size;
         cell.td.style.backgroundColor = Util.rgbString(0, sizeValue, 0); // brighter green = more energy
@@ -159,8 +184,8 @@ class World {
         cell.type = CELL_TYPE.PLANTLET;
     };
     
-    setCellBug = function (location, buglet, that) {
-        var cell = that.grid[location.x][location.y];
+    setCellBug = function (location, buglet) {
+        var cell = this.grid[location.x][location.y];
 
         var sizeValue = (256 / MAX_SIZE_BUGLET) * buglet.size; 
         cell.td.style.backgroundColor = Util.rgbString(256, 256 - sizeValue, 0); // yellow = low energy, red = high energy
@@ -168,25 +193,25 @@ class World {
         cell.type = CELL_TYPE.BUG;
     };
 
-    getCellType = function(location, that)
+    getCellType = function(location)
     {
-        var cell = that.grid[location.x][location.y];
+        var cell = this.grid[location.x][location.y];
         if(cell) return cell.type;
 
         return null;
     }
 
-    getCellActor = function(location, that)
+    getCellActor = function(location)
     {
-        var cell = that.grid[location.x][location.y];
+        var cell = this.grid[location.x][location.y];
         if(cell) return cell.actor;
 
         return null;
     }
 
-    getCellSize = function(location, that)
+    getCellSize = function(location)
     {
-        var cell = that.grid[location.x][location.y];
+        var cell = this.grid[location.x][location.y];
         if(cell && cell.actor) return cell.actor.size;
 
         return 0;
