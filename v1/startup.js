@@ -14,3 +14,8 @@ function buildWorld(){
 function startStop(){
     this.world.paused = !this.world.paused;
 }
+
+function setSpeed(speed)
+{
+    this.world.clockSpeed = speed;
+}

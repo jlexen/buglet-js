@@ -8,12 +8,12 @@ const MAX_ENERGY_PLANTLET = 100;
 const MIN_ENERGY_PLANTLET = 50;
 const ENERGY_USE_RATIO = .2;
 const MAX_PLANTLETS_TO_RESPAWN = 5;
-const CLOCK_SPEED = 500;
 
 class World {
     constructor() {
         this.buglets = [];
         this.paused = false;
+        this.clockSpeed = 500;
     }
     
     initializeGrid = function (size) {
@@ -85,7 +85,7 @@ class World {
             this.setCellBug(location, buglet, this);
         }
 
-        setInterval(() => this.runClock(), CLOCK_SPEED);
+        setInterval(() => this.runClock(), this.clockSpeed);
     };
     
     runClock() {
