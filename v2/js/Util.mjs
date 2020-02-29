@@ -1,4 +1,4 @@
-class Util {
+export class Util {
 
     static distanceFrom(toLocation, fromLocation)
     {
@@ -7,8 +7,7 @@ class Util {
             Math.pow(toLocation.y - fromLocation.y, 2)));
     }    
 
-    static rgbString(r, g, b)
-    {
-        return `rgb(${Math.floor(r)},${Math.floor(g)},${Math.floor(b)})`;
+    static degreesBetweenPoints(toLocation, fromLocation){
+        return Math.atan2(toLocation.y - toLocation.y, fromLocation.x - fromLocation.x) * 180 / Math.PI;
     }
 }

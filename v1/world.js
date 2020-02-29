@@ -13,7 +13,7 @@ class World {
     constructor() {
         this.buglets = [];
         this.paused = false;
-        this.clockSpeed = 500;
+        this.clockSpeed = 100;
     }
     
     initializeGrid = function (size) {
