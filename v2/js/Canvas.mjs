@@ -10,8 +10,26 @@ export class Canvas{
         this.document = document;
     }
 
+    clear()
+    {
+        var actors = this.document.getElementById("actors");
+        if(actors)
+        {
+            actors.parentNode.removeChild(actors);
+        }
+    }
+
     drawActors(items){
-        var body = this.document.getElementsByTagName("BODY")[0]
+
+        var actors = this.document.getElementById('actors');
+        if(!actors)
+        {
+            actors = document.createElement('div');
+            actors.id = "actors";
+            var body = this.document.getElementsByTagName("BODY")[0];
+            body.appendChild(actors);
+        }
+        
         for(var i = 0; i < items.length; i++)
         {
             var item = items[i];
@@ -42,13 +60,12 @@ export class Canvas{
             element.style.top = item.location.y * SCALE;
         
             // todo
-            if(item.orientation)
+            if(item.orientation != null)
             {
-                element.style.transform = 'rotate(' + item.orientation  + 'deg)';
+                element.style.transform = 'rotate(' + (item.orientation + 90)  + 'deg)';
             }
             
-
-            body.appendChild(element);
+            actors.appendChild(element);
         }
     }
 }

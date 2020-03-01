@@ -1,6 +1,7 @@
 import { LocationIndex } from "./LocationIndex.mjs";
 import { Location } from "./Location.mjs";
 import { Buglet } from "./actors/Buglet.mjs";
+import { Util } from "./Util.mjs";
 
 export class BugletManager
 {
@@ -11,7 +12,31 @@ export class BugletManager
     }
 
     moveBuglets(){
+        var buglets = this.getBuglets();
+        for(const i in buglets)
+        {
+            try
+            {
+                this.moveBuglet(buglets[i]);
+            }
+            catch(error)
+            {
+                console.log(error);
+            }
+        }
+    }
 
+    moveBuglet(buglet)
+    {
+        let vector = buglet.calcMoveVector();
+        if(vector == null) return;
+        let location = Util.locationFromDistanceAndAngle(
+            buglet.location, 
+            buglet.moveSpeed,
+            vector);
+
+        buglet.orientation = vector;
+        buglet.location = location;
     }
 
     createRandomBuglets(count)
@@ -27,7 +52,7 @@ export class BugletManager
             let location = new Location(Math.random() * this.worldSize, Math.random() * this.worldSize)
             let orientation = Math.random() * 360;
             let size = Math.random() * this.bugletMaxSize;
-            let buglet = new Buglet(location, orientation, size);
+            let buglet = new Buglet(this.bugletIndex, location, orientation, size);
 
             this.bugletIndex.insert(buglet, location);
         }

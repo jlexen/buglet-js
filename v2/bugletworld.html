@@ -5,21 +5,11 @@
     <script type="text/javascript" src="js/Util.js"></script> -->
 
     <script type="module" >
-        import { Location } from "./js/Location.mjs";
-        import { LocationIndex } from "./js/LocationIndex.mjs";
-        import { Canvas } from "./js/Canvas.mjs";
-        import { BugletManager } from "./js/BugletManager.mjs";
+        import { WorldManager } from "./js/WorldManager.mjs";
 
-        window.Location = Location;
-        window.LocationIndex = LocationIndex;
-        
-        var bugletManager = new BugletManager(800, 100);
-        var canvas = new Canvas(window.document);
-        bugletManager.createRandomBuglets(50);        
-        
-
-        var actors = bugletManager.getBuglets();
-        canvas.drawActors(actors);
+        var worldManager = new WorldManager(500);
+        worldManager.initialize();
+        worldManager.startClock();
         
     </script>
 

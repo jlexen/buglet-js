@@ -3,4 +3,9 @@ export class Location {
         this.x = x;
         this.y = y;
     }
+
+    toString()
+    {
+        return `{x: {this.x} + y: {this.y}`;
+    }
 }

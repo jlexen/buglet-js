@@ -134,4 +134,29 @@ export class LocationIndex
         
         return closestLocation;
     }
+
+    getItemsInRadius(fromLocation, distance)
+    {
+        let items = [];
+
+        for(const x in this.index){
+
+            // short circuit, don't continue on this x value if not in distance
+            if(x > fromLocation.x + distance || x < fromLocation.x - distance) continue;
+
+            for(const y in this.index[x]){
+                if(y > fromLocation.y + distance || y < fromLocation.y - distance) continue;
+
+                // skip if same coords
+                if(x == fromLocation.x && y == fromLocation.y) continue;
+                
+                var toLocation = new Location(x, y);
+                var distanceFrom = Util.distanceFrom(toLocation, fromLocation);
+                
+                if(distanceFrom <= distance) items.push(this.index[x][y]);
+            }
+        }
+
+        return items;
+    }
 }
