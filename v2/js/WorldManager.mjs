@@ -3,7 +3,9 @@ import { LocationIndex } from "./LocationIndex.mjs";
 import { Canvas } from "./Canvas.mjs";
 import { BugletManager } from "./BugletManager.mjs";
 
-const WORLD_SIZE = 800;
+const WORLD_SIZE = 500;
+const BUGLET_COUNT = 100;
+const BUGLET_SIZE_MAX = 30;
 
 export class WorldManager
 {
@@ -17,22 +19,29 @@ export class WorldManager
         window.Location = Location;
         window.LocationIndex = LocationIndex;
         
-        this.bugletManager = new BugletManager(WORLD_SIZE, 30);
+        this.bugletManager = new BugletManager(WORLD_SIZE, BUGLET_SIZE_MAX);
         this.canvas = new Canvas(window.document);
 
 
-        this.bugletManager.createRandomBuglets(50);        
+        this.bugletManager.createRandomBuglets(BUGLET_COUNT);        
         
 
 
     }
 
     startClock(){
-
+        this.pause = false;
         setInterval(() => this.runClock(), this.clockSpeed);
     }
 
+    pauseClockToggle()
+    {
+        this.pause = !this.pause;
+    }
+
     runClock() {
+        // check if paused
+        if(this.pause) return;
 
         // move buglets
         this.bugletManager.moveBuglets();

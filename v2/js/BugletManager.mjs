@@ -30,13 +30,18 @@ export class BugletManager
     {
         let vector = buglet.calcMoveVector();
         if(vector == null) return;
-        let location = Util.locationFromDistanceAndAngle(
+        let newLocation = Util.locationFromDistanceAndAngle(
             buglet.location, 
             buglet.moveSpeed,
             vector);
 
         buglet.orientation = vector;
-        buglet.location = location;
+
+        // remove from old location
+        this.bugletIndex.remove(buglet.location);
+
+        buglet.location = newLocation;
+        this.bugletIndex.insert(buglet, buglet.location);
     }
 
     createRandomBuglets(count)

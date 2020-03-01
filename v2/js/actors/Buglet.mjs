@@ -14,7 +14,7 @@ export class Buglet {
         this.genome = new BugletGenome();
 
         this.moveSpeed = 5;
-        this.sightDistance = 25;
+        this.sightDistance = 100;
     }    
 
     getMoveLocation(){
@@ -22,19 +22,21 @@ export class Buglet {
     }
 
     calcMoveVector(){
+
+
+        let threat = this.findBiggestThreat();
+        if(threat != null){
+            let degree = Util.degreesBetweenPoints(this.location, threat.location);
+            return degree - 180;
+        }
+
         let target = this.findFoodTarget();
         if(target != null)
         {
             let degree = Util.degreesBetweenPoints(this.location, target.location);
             return degree;
         }
-
-        let threat = this.findBiggestThreat();
-        if(threat != null){
-            let degree = Util.degreesBetweenPoints(this.location, threat.location);
-            return degree;
-        }
-
+        
         return null;
     }
 

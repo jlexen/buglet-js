@@ -50,7 +50,7 @@ export class LocationIndex
         if(!location.y < 0) throw new Exception("Cannot add negative y value!");
         if(!this.index[location.x][location.y]) throw new Exception("Cannot remove item that doesn't exist");
         
-        return delete this[x][y];
+        return delete this.index[location.x][location.y];
         // if(!this.index[location.x][location.y])
         // {
         //     // nothing there

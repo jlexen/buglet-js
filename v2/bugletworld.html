@@ -11,6 +11,11 @@
         worldManager.initialize();
         worldManager.startClock();
         
+        document.body.onkeyup = function(e){
+            if(e.keyCode == 32){
+                worldManager.pauseClockToggle();
+            }
+        }
     </script>
 
 </head>

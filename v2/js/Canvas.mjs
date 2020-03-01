@@ -59,6 +59,9 @@ export class Canvas{
             element.style.left = item.location.x * SCALE;
             element.style.top = item.location.y * SCALE;
         
+            // info 
+            element.onclick = function() { alert(item.size) };
+
             // todo
             if(item.orientation != null)
             {

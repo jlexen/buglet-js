@@ -9,7 +9,7 @@ export class Util {
             Math.pow(toLocation.y - fromLocation.y, 2)));
     }    
 
-    static degreesBetweenPoints(toLocation, fromLocation){
+    static degreesBetweenPoints(fromLocation, toLocation){
         return Math.atan2(toLocation.y - fromLocation.y, toLocation.x - fromLocation.x) * 180 / Math.PI;
     }
 
