@@ -42,6 +42,9 @@ export class BugletManager
 
         buglet.location = newLocation;
         this.bugletIndex.insert(buglet, buglet.location);
+
+        // check if there are any bugs in radius
+        buglet.eatNearbyBugs();
     }
 
     createRandomBuglets(count)

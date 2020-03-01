@@ -2,6 +2,9 @@ import { ActorType } from "../enums/ActorType.mjs"
 import { BugletGenome } from "../genetics/BugletGenome.mjs";
 import { Util } from '../Util.mjs';
 
+
+const SIGHT_FACTOR = 5;
+
 export class Buglet {
 
     constructor(bugletIndex, location, orientation, size)
@@ -18,7 +21,12 @@ export class Buglet {
     }    
 
     getMoveLocation(){
+        
+    }
 
+    getSightDistance()
+    {
+        return this.size * SIGHT_FACTOR;
     }
 
     calcMoveVector(){
@@ -36,12 +44,32 @@ export class Buglet {
             let degree = Util.degreesBetweenPoints(this.location, target.location);
             return degree;
         }
-        
+
         return null;
     }
 
+    eatNearbyBugs()
+    {
+        // radius is half of the size... we can change this later if needed
+        let items = this.bugletIndex.getItemsInRadius(this.location, this.size/2);
+
+        for(var i = 0; i < items.length; i++)
+        {
+            let item = items[i];
+            if(item.size < this.size) {
+                this.eatBuglet(item);
+            }
+        }
+    }
+
+    eatBuglet(buglet)
+    {
+        this.size += buglet.size;
+        this.bugletIndex.remove(buglet.location);
+    }
+
     findBiggestThreat(){
-        let itemsInRadius = this.bugletIndex.getItemsInRadius(this.location, this.sightDistance);
+        let itemsInRadius = this.bugletIndex.getItemsInRadius(this.location, this.getSightDistance());
         let threat = null;
         for(var i = 0; i < itemsInRadius.length; i++)
         {
@@ -65,7 +93,7 @@ export class Buglet {
     }
 
     findFoodTarget(){
-        let itemsInRadius = this.bugletIndex.getItemsInRadius(this.location, this.sightDistance);
+        let itemsInRadius = this.bugletIndex.getItemsInRadius(this.location, this.getSightDistance());
         let target = null;
         for(var i = 0; i < itemsInRadius.length; i++)
         {
