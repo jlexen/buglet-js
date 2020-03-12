@@ -32,7 +32,7 @@ export class BugletManager
         if(vector == null) return;
         let newLocation = Util.locationFromDistanceAndAngle(
             buglet.location, 
-            buglet.moveSpeed,
+            buglet.getMoveSpeed(),
             vector);
 
         buglet.orientation = vector;
@@ -45,6 +45,9 @@ export class BugletManager
 
         // check if there are any bugs in radius
         buglet.eatNearbyBugs();
+
+        // decrement energy
+        buglet.decrementSize();
     }
 
     createRandomBuglets(count)
