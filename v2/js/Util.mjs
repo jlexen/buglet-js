@@ -20,4 +20,9 @@ export class Util {
             fromLocation.y + (distance * Math.sin(radians))
         );
     }
+
+    static sameLocation(a, b)
+    {
+        return a.x === b.x && a.y === b.y;
+    }
 }

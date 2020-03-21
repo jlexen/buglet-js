@@ -5,10 +5,12 @@ import { Util } from "./Util.mjs";
 
 export class BugletManager
 {
-    constructor(worldSize, bugletMaxSize){
+    constructor(worldSize, spawnOffset, bugletMaxSize, plantletManager){
+        this.spawnOffset = spawnOffset;
         this.bugletIndex = new LocationIndex();
         this.worldSize = worldSize;
         this.bugletMaxSize = bugletMaxSize;
+        this.plantletManager = plantletManager;
     }
 
     moveBuglets(){
@@ -29,7 +31,14 @@ export class BugletManager
     moveBuglet(buglet)
     {
         let vector = buglet.calcMoveVector();
-        if(vector == null) return;
+        if(vector == null)
+        {
+            buglet.decrementSize(.5) 
+            return;
+
+        }
+        
+        let oldLocation = buglet.location;
         let newLocation = Util.locationFromDistanceAndAngle(
             buglet.location, 
             buglet.getMoveSpeed(),
@@ -43,11 +52,21 @@ export class BugletManager
         buglet.location = newLocation;
         this.bugletIndex.insert(buglet, buglet.location);
 
+        // eat any plants nearby
+        buglet.eatNearbyPlants();
+
         // check if there are any bugs in radius
         buglet.eatNearbyBugs();
 
-        // decrement energy
-        buglet.decrementSize();
+        // decrement energy, less if didn't move at all
+        if(Util.sameLocation(oldLocation, newLocation))
+        {
+            buglet.decrementSize(.5);
+        }
+        else
+        {
+            buglet.decrementSize(1);
+        }        
     }
 
     createRandomBuglets(count)
@@ -60,10 +79,14 @@ export class BugletManager
 
     createRandomBuglet(){
         try{
-            let location = new Location(Math.random() * this.worldSize, Math.random() * this.worldSize)
+            let location = new Location(
+                Math.random() * this.worldSize + this.spawnOffset, 
+                Math.random() * this.worldSize + this.spawnOffset);
+
             let orientation = Math.random() * 360;
             let size = Math.random() * this.bugletMaxSize;
-            let buglet = new Buglet(this.bugletIndex, location, orientation, size);
+            let plantletIndex = this.plantletManager.getPlantletIndex();
+            let buglet = new Buglet(this.bugletIndex, plantletIndex, location, orientation, size);
 
             this.bugletIndex.insert(buglet, location);
         }

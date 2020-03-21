@@ -2,10 +2,14 @@ import { Location } from "./Location.mjs";
 import { LocationIndex } from "./LocationIndex.mjs";
 import { Canvas } from "./Canvas.mjs";
 import { BugletManager } from "./BugletManager.mjs";
+import { PlantletManager } from "./PlantletManager.mjs";
 
 const WORLD_SIZE = 500;
-const BUGLET_COUNT = 20;
+const SPAWN_OFFSET = 250;
+const BUGLET_COUNT = 5;
 const BUGLET_SIZE_MAX = 30;
+const PLANTLET_SIZE_MAX = 25;
+const PLANTLET_COUNT = 20;
 
 export class WorldManager
 {
@@ -14,19 +18,15 @@ export class WorldManager
     }
 
     initialize(){
-
-
         window.Location = Location;
         window.LocationIndex = LocationIndex;
-        
-        this.bugletManager = new BugletManager(WORLD_SIZE, BUGLET_SIZE_MAX);
         this.canvas = new Canvas(window.document);
 
+        this.plantletManager = new PlantletManager(WORLD_SIZE + SPAWN_OFFSET, 0, PLANTLET_SIZE_MAX);
+        this.plantletManager.createRandomPlantlets(PLANTLET_COUNT);
 
+        this.bugletManager = new BugletManager(WORLD_SIZE, SPAWN_OFFSET, BUGLET_SIZE_MAX, this.plantletManager);
         this.bugletManager.createRandomBuglets(BUGLET_COUNT);        
-        
-
-
     }
 
     startClock(){
@@ -46,25 +46,15 @@ export class WorldManager
         // move buglets
         this.bugletManager.moveBuglets();
             
-
-        // draw buglets
-        var actors = this.bugletManager.getBuglets();
         this.canvas.clear();
-        this.canvas.drawActors(actors);
-        // if(this.paused) return;
 
-        // // have bugs do their thing
-        // for (var i = 0; i < this.buglets.length; i++) 
-        // {
-        //     var buglet = this.buglets[i];
-        //     this.performBugletAction(buglet);
-        // }      
+        // draw buglets                
+        var buglets = this.bugletManager.getBuglets();
+        this.canvas.drawActors(buglets);
+       
+        // draw planlets
+        var plantlets = this.plantletManager.getPlantlets();
+        this.canvas.drawActors(plantlets);
 
-        // // spawn plantlets
-        // var plantletsToResponse = MAX_PLANTLETS_TO_RESPAWN * Math.random();
-        // for (var i = 0; i < plantletsToResponse; i++)
-        // {
-        //     this.spawnRandomPlantlet()
-        // }
     }  
 }

@@ -4,42 +4,36 @@ import { Util } from '../Util.mjs';
 
 
 const SIGHT_FACTOR = 5;
-const EAT_DISTANCE_FACTOR = 0.5;
+const EAT_DISTANCE_FACTOR = 1;
 const MAX_SIZE = 100; 
 const MIN_SIZE = 5;
 const SIZE_REDUCE_FACTOR = .01;
-const SPEED_FACTOR = .5;
+const SPEED_FACTOR = .2;
 const MIN_SPEED = 3;
 const WANDER_MAX_DEVIATION = 15;
+const PAUSE_CHANCE_FACTOR = 0.01;
 
 export class Buglet {
 
-    constructor(bugletIndex, location, orientation, size)
+    constructor(bugletIndex, plantletIndex, location, orientation, size)
     {
         this.bugletIndex = bugletIndex;
+        this.plantletIndex = plantletIndex;
         this.actorType = ActorType.Buglet;
         this.location = location;
         this.orientation = orientation ? orientation : 0;
         this.size = size;
         this.genome = new BugletGenome();
-
         this.moveSpeed = 5;
-        this.sightDistance = 100;
         this.lastWanderDirection = null;
     }    
-
-    getMoveLocation(){
-        
-    }
-
+    
     getSightDistance()
     {
         return this.size * SIGHT_FACTOR;
     }
 
     calcMoveVector(){
-
-
         // let threat = this.findBiggestThreat();
         // if(threat != null){
         //     let degree = Util.degreesBetweenPoints(this.location, threat.location);
@@ -51,12 +45,22 @@ export class Buglet {
             return threatAvoidDegree;
         } 
 
-        let target = this.findFoodTarget();
-        if(target != null)
+        let plantletTarget = this.findPlantTarget();
+        if(plantletTarget != null)
         {
-            let degree = Util.degreesBetweenPoints(this.location, target.location);
+            let degree = Util.degreesBetweenPoints(this.location, plantletTarget.location);
             return degree;
         }
+
+        let bugletTarget = this.findBugTarget();
+        if(bugletTarget != null)
+        {
+            let degree = Util.degreesBetweenPoints(this.location, bugletTarget.location);
+            return degree;
+        }
+
+        // check to see if pausing
+        if(this.isPausing()) return null;
 
         let wanderDirection = this.getWanderDirection();
         if(wanderDirection != null)
@@ -67,10 +71,9 @@ export class Buglet {
         return null;
     }
 
-    decrementSize()
+    decrementSize(percentage)
     {
-        this.size-= this.size*SIZE_REDUCE_FACTOR;
-
+        this.size-= this.size*SIZE_REDUCE_FACTOR*percentage;
         if(this.size < MIN_SIZE) this.size = MIN_SIZE;
     }
 
@@ -80,6 +83,30 @@ export class Buglet {
         if(speed < MIN_SPEED) speed = MIN_SPEED;
 
         return speed;
+    }
+
+    
+    eatNearbyPlants()
+    {
+        // do not eat nearby bugs if too big
+        if(this.size >= MAX_SIZE) return;
+
+        // radius is half of the size... we can change this later if needed
+        let items = this.plantletIndex.getItemsInRadius(this.location, this.size * EAT_DISTANCE_FACTOR);
+
+        for(var i = 0; i < items.length; i++)
+        {
+            let item = items[i];
+            if(item.size < this.size) {
+                this.eatPlantlet(item);
+            }
+        }
+    }
+
+    eatPlantlet(plantlet)
+    {
+        this.size += plantlet.size;
+        this.plantletIndex.remove(plantlet.location);
     }
 
     eatNearbyBugs()
@@ -174,7 +201,27 @@ export class Buglet {
         return threats;
     }
 
-    findFoodTarget(){
+    findPlantTarget()
+    {
+        let itemsInRadius = this.plantletIndex.getItemsInRadius(this.location, this.getSightDistance()); 
+        let target = null;
+        for(var i = 0; i < itemsInRadius.length; i++)
+        {
+            let item = itemsInRadius[i];
+
+            if(target == null){
+                target = item;
+            }
+            else if(item.size > target.size)
+            {
+                target = item;
+            }
+        }
+
+        return target;
+    }
+
+    findBugTarget(){
         let itemsInRadius = this.bugletIndex.getItemsInRadius(this.location, this.getSightDistance());
         let target = null;
         for(var i = 0; i < itemsInRadius.length; i++)
@@ -215,6 +262,14 @@ export class Buglet {
 
         this.lastWanderDirection = direction;
         return direction;
+    }
+
+    isPausing()
+    {
+        let rand = Math.random();
+        let chance = rand + this.size*PAUSE_CHANCE_FACTOR;
+
+        return chance > 1;
     }
 
     toString()
