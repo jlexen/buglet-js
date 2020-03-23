@@ -3,6 +3,8 @@ import { Location } from "./Location.mjs";
 import { Buglet } from "./actors/Buglet.mjs";
 import { Util } from "./Util.mjs";
 
+const BUGLET_MIN_SIZE = 20;
+
 export class BugletManager
 {
     constructor(worldSize, spawnOffset, bugletMaxSize, plantletManager){
@@ -30,21 +32,25 @@ export class BugletManager
 
     moveBuglet(buglet)
     {
-        let vector = buglet.calcMoveVector();
-        if(vector == null)
-        {
-            buglet.decrementSize(.5) 
-            return;
+        let vector = buglet.getMoveVector();
 
+        if(vector.magnitude == 0)
+        {
+            buglet.decrementSize(.5);
+            return;
         }
         
         let oldLocation = buglet.location;
+
+        let moveSpeed = buglet.getMoveSpeed();
+        let distance = vector.magnitude < moveSpeed ? vector.magnitude : moveSpeed;
+
         let newLocation = Util.locationFromDistanceAndAngle(
             buglet.location, 
-            buglet.getMoveSpeed(),
-            vector);
+            distance,
+            vector.angle);
 
-        buglet.orientation = vector;
+        buglet.orientation = vector.angle;
 
         // remove from old location
         this.bugletIndex.remove(buglet.location);
@@ -85,8 +91,11 @@ export class BugletManager
 
             let orientation = Math.random() * 360;
             let size = Math.random() * this.bugletMaxSize;
+
+            if(size < BUGLET_MIN_SIZE) size = BUGLET_MIN_SIZE;
+
             let plantletIndex = this.plantletManager.getPlantletIndex();
-            let buglet = new Buglet(this.bugletIndex, plantletIndex, location, orientation, size);
+            let buglet = new Buglet(this.bugletIndex, plantletIndex, location, orientation, size, this.worldSize);
 
             this.bugletIndex.insert(buglet, location);
         }

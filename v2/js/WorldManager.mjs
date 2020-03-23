@@ -6,7 +6,7 @@ import { PlantletManager } from "./PlantletManager.mjs";
 
 const WORLD_SIZE = 500;
 const SPAWN_OFFSET = 250;
-const BUGLET_COUNT = 5;
+const BUGLET_COUNT = 1;
 const BUGLET_SIZE_MAX = 30;
 const PLANTLET_SIZE_MAX = 25;
 const PLANTLET_COUNT = 20;
