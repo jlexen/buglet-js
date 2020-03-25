@@ -73,21 +73,21 @@ export class Canvas{
         parentNode.appendChild(element);
 
         // if has sight distance, draw glow
-        if(typeof actor.getSightDistance === 'function')
-        {
-            let distance = actor.getSightDistance();
-            var glow = document.createElement('div');
-            glow.style.background = 'lightblue';
-            glow.style.borderRadius = '50%';
-            glow.style.width = distance*2 + "px";
-            glow.style.height = distance*2 + "px";
-            glow.style.zIndex = GLOW_ZINDEX;
-            glow.style.position = "absolute";
-            glow.style.left = (actor.location.x - distance) * SCALE
-            glow.style.top = (actor.location.y - distance) * SCALE
-            glow.style.opacity = '50%';
+        // if(typeof actor.getSightDistance === 'function')
+        // {
+        //     let distance = actor.getSightDistance();
+        //     var glow = document.createElement('div');
+        //     glow.style.background = 'lightblue';
+        //     glow.style.borderRadius = '50%';
+        //     glow.style.width = distance*2 + "px";
+        //     glow.style.height = distance*2 + "px";
+        //     glow.style.zIndex = GLOW_ZINDEX;
+        //     glow.style.position = "absolute";
+        //     glow.style.left = (actor.location.x - distance) * SCALE
+        //     glow.style.top = (actor.location.y - distance) * SCALE
+        //     glow.style.opacity = '50%';
 
-            parentNode.appendChild(glow)
-        }
+        //     parentNode.appendChild(glow)
+        // }
     }
 }

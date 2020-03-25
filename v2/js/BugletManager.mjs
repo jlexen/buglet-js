@@ -66,7 +66,7 @@ export class BugletManager
         buglet.eatNearbyPlants();
 
         // check if there are any bugs in radius
-        //buglet.eatNearbyBugs();
+        buglet.eatNearbyBugs();
 
         if(buglet.isWillingToDuplicate())
         {

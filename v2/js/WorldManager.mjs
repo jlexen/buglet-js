@@ -47,7 +47,10 @@ export class WorldManager
         this.bugletManager.moveBuglets();
             
         // spawn random plantlets
-        this.plantletManager.createRandomPlantlets(PLANTLET_COUNT * .1 * Math.random());
+        if(Math.random() > .9)
+        {
+            this.plantletManager.createRandomPlantlets(2);
+        }        
 
         this.canvas.clear();
 

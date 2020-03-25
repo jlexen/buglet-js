@@ -144,7 +144,7 @@ export class Buglet {
         for(var i = 0; i < items.length; i++)
         {
             let item = items[i];
-            if(item.size < this.size) {
+            if(item.size*2 < this.size) { // will eat if twice the size 
                 this.eatBuglet(item);
             }
         }
@@ -227,7 +227,20 @@ export class Buglet {
 
     getAllFood()
     {
+        // get all plants
         let itemsInRadius = this.plantletIndex.getItemsInRadius(this.location, this.getSightDistance()); 
+
+        // get all buglets less than half the size
+        let buglets = this.bugletIndex.getItemsInRadius(this.location, this.getSightDistance());
+        for(let i = 0; i < buglets.length; i++)
+        {
+            let buglet = buglets[i];
+            if(buglet.size < this.size / 2)
+            {
+                itemsInRadius.push(buglet);
+            }
+        }
+
         return itemsInRadius;
     }
 
