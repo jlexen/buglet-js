@@ -18,6 +18,11 @@ const RANDOM_ANGLE_FACTOR = 5;
 const RANDON_MAGNITUDE_FACTOR = .3;
 const FEED_EFFICIENCY_FACTOR = .5;
 const INTERNAL_PULL_FACTOR = 0.01;
+const DUP_FACTOR_DISTANCE_NEEDED = 0.7;
+const DUP_FACTOR_NEARBY_BUGLETS = -0.2;
+const DUP_FACTOR_SIZE = 0.01;
+const DUP_FACTOR_PLANTLETS_IN_SIGHT = 0.01;
+const DUP_FACTOR_GENERAL_INCLINATION = 1.0;
 
 export class Buglet {
 
@@ -65,7 +70,7 @@ export class Buglet {
                 let foodItem = foodItems[i];
                 let distance = Util.distanceFrom(foodItem.location, this.location);
                 let angle = Util.degreesBetweenPoints(this.location, foodItem.location);
-                let magninute = (this.getSightDistance() - distance) * FOOD_PLANTLET_MULTIPLIER;
+                let magninute = (this.getSightDistance() - distance) * FOOD_PLANTLET_MULTIPLIER * (MAX_SIZE - this.size/MAX_SIZE);
                 vectors.push(new Vector(angle, magninute));
             }
         }
@@ -91,49 +96,10 @@ export class Buglet {
         return new Vector(0, 0);
     }
 
-
-    calcMoveVector(){
-        // let threat = this.findBiggestThreat();
-        // if(threat != null){
-        //     let degree = Util.degreesBetweenPoints(this.location, threat.location);
-        //     return degree - 180;
-        // }
-        let threatAvoidDegree = this.getThreatVectorTotal();
-        if(threatAvoidDegree != null)
-        {
-            return threatAvoidDegree;
-        } 
-
-        let plantletTarget = this.findPlantTarget();
-        if(plantletTarget != null)
-        {
-            let degree = Util.degreesBetweenPoints(this.location, plantletTarget.location);
-            return degree;
-        }
-
-        let bugletTarget = this.findBugTarget();
-        if(bugletTarget != null)
-        {
-            let degree = Util.degreesBetweenPoints(this.location, bugletTarget.location);
-            return degree;
-        }
-
-        // check to see if pausing
-        if(this.isPausing()) return null;
-
-        let wanderDirection = this.getWanderDirection();
-        if(wanderDirection != null)
-        {
-            return wanderDirection;
-        }
-
-        return null;
-    }
-
     decrementSize(percentage)
     {
         this.size-= this.size*SIZE_REDUCE_FACTOR*percentage;
-        if(this.size < MIN_SIZE) this.size = MIN_SIZE;
+        if(this.size < MIN_SIZE) this.size = MIN_SIZE;        
     }
 
     getMoveSpeed()
@@ -334,6 +300,44 @@ export class Buglet {
         let chance = rand + this.size*PAUSE_CHANCE_FACTOR;
 
         return chance > 1;
+    }
+
+    isWillingToDuplicate()
+    {
+        // larger size increases chance of duplicating
+        let sizeFactor = this.size * DUP_FACTOR_SIZE;
+
+        // nearby buglets reduce chance of duplicating
+        let neededDistance = this.getSightDistance() * DUP_FACTOR_DISTANCE_NEEDED;
+        let nearbyBuglets = this.bugletIndex.getItemsInRadius(this.location, neededDistance);        
+        let nearbyBugletsFactor = 0;
+        for(let i = 0; i < nearbyBuglets.length; i++) nearbyBugletsFactor+= nearbyBuglets[i].size * DUP_FACTOR_NEARBY_BUGLETS;
+        
+        // nearby plants increase chance of duplicating, doesn't take into account size of plants ATM
+        let plantletsInSight = this.plantletIndex.getItemsInRadius(this.location, this.getSightDistance());
+        let plantletsInSightFactor = plantletsInSight.length * DUP_FACTOR_PLANTLETS_IN_SIGHT;
+
+        let total = sizeFactor + nearbyBugletsFactor + plantletsInSightFactor;
+
+        total *= DUP_FACTOR_GENERAL_INCLINATION;
+
+        return (total >= 1.0);
+    }
+
+    performDuplication()
+    {
+        // split size
+        this.size = this.size / 2;
+                
+        let size = this.size;
+        let orientation = Util.oppositeAngle(this.orientation);
+
+        let distance = this.getSightDistance() * DUP_FACTOR_DISTANCE_NEEDED * Math.random();
+        let location = Util.locationFromDistanceAndAngle(this.location, distance, orientation)
+
+        let buglet = new Buglet(this.bugletIndex, this.plantletIndex, location, orientation, size, this.worldSize);
+
+        this.bugletIndex.insert(buglet, location);
     }
 
     toString()

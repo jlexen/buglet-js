@@ -31,6 +31,8 @@ export class Util {
         return new Vector(degrees, magnitude);
     }
 
+    static oppositeAngle(angle) { return angle - 180; }
+
     static vectorToLocation(vector){
         let radians = vector.angle * Math.PI / 180;
         return new Location(

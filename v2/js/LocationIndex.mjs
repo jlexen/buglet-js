@@ -99,6 +99,11 @@ export class LocationIndex
         return locationItems;
     }
 
+    count()
+    {
+        return getLocationItems().length;
+    }
+
     getItemAt(location)
     {
         if(!location) throw new Exception("Invalid location!");

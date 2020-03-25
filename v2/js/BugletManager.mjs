@@ -4,6 +4,7 @@ import { Buglet } from "./actors/Buglet.mjs";
 import { Util } from "./Util.mjs";
 
 const BUGLET_MIN_SIZE = 20;
+const BUGLET_DEATH_SIZE = 10;
 
 export class BugletManager
 {
@@ -37,6 +38,9 @@ export class BugletManager
         if(vector.magnitude == 0)
         {
             buglet.decrementSize(.5);
+
+            // remove if died
+            if(buglet.size <= BUGLET_DEATH_SIZE) this.bugletIndex.remove(buglet.location);
             return;
         }
         
@@ -62,7 +66,12 @@ export class BugletManager
         buglet.eatNearbyPlants();
 
         // check if there are any bugs in radius
-        buglet.eatNearbyBugs();
+        //buglet.eatNearbyBugs();
+
+        if(buglet.isWillingToDuplicate())
+        {
+            buglet.performDuplication();
+        }
 
         // decrement energy, less if didn't move at all
         if(Util.sameLocation(oldLocation, newLocation))
@@ -73,6 +82,9 @@ export class BugletManager
         {
             buglet.decrementSize(1);
         }        
+
+        // remove if died
+        if(buglet.size <= BUGLET_DEATH_SIZE) this.bugletIndex.remove(buglet.location);
     }
 
     createRandomBuglets(count)

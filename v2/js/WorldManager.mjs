@@ -46,6 +46,9 @@ export class WorldManager
         // move buglets
         this.bugletManager.moveBuglets();
             
+        // spawn random plantlets
+        this.plantletManager.createRandomPlantlets(PLANTLET_COUNT * .1 * Math.random());
+
         this.canvas.clear();
 
         // draw buglets                
@@ -56,5 +59,7 @@ export class WorldManager
         var plantlets = this.plantletManager.getPlantlets();
         this.canvas.drawActors(plantlets);
 
+        // log population
+        console.log("Population: " + buglets.length);
     }  
 }
