@@ -55,6 +55,8 @@ export class Canvas{
             throw new Exception("invalid or missing actor type");
         }
 
+        element.onclick = function() { alert(actor.genome.toString())};
+
         element.style.backgroundImage = backgroundImage;
         element.style.backgroundSize = "contain";
         element.style.height = actor.size + "px";

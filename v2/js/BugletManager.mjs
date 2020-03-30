@@ -4,7 +4,7 @@ import { Buglet } from "./actors/Buglet.mjs";
 import { Util } from "./Util.mjs";
 
 const BUGLET_MIN_SIZE = 20;
-const BUGLET_DEATH_SIZE = 10;
+const BUGLET_DEATH_SIZE = 5;
 
 export class BugletManager
 {
@@ -37,7 +37,7 @@ export class BugletManager
 
         if(vector.magnitude == 0)
         {
-            buglet.decrementSize(.5);
+            buglet.runMetabolismWait();
 
             // remove if died
             if(buglet.size <= BUGLET_DEATH_SIZE) this.bugletIndex.remove(buglet.location);
@@ -76,11 +76,11 @@ export class BugletManager
         // decrement energy, less if didn't move at all
         if(Util.sameLocation(oldLocation, newLocation))
         {
-            buglet.decrementSize(.5);
+            buglet.runMetabolismWait();
         }
         else
         {
-            buglet.decrementSize(1);
+            buglet.runMetabolismMove()
         }        
 
         // remove if died
@@ -102,9 +102,7 @@ export class BugletManager
                 Math.random() * this.worldSize + this.spawnOffset);
 
             let orientation = Math.random() * 360;
-            let size = Math.random() * this.bugletMaxSize;
-
-            if(size < BUGLET_MIN_SIZE) size = BUGLET_MIN_SIZE;
+            let size = 50;
 
             let plantletIndex = this.plantletManager.getPlantletIndex();
             let buglet = new Buglet(this.bugletIndex, plantletIndex, location, orientation, size, this.worldSize);

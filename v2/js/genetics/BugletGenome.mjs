@@ -1,28 +1,51 @@
+
+/**
+ * All genome values are a factor from 0 to 1
+ * No factor can be negative. No factor can be greater than 1.
+ * 
+ */
 export class BugletGenome
 {
-    /**
-     * Possible properties
-     *  fear
-     *      how much nearby larger buglets force it to escape
-     *      0 = no fear, 1 = full influence
-     *      also affects willingness to split
-     * 
-     *  randomness
-     *      adds factor of unpredictability 
-     * 
-     *  appetite 
-     *      factor influences how likely it is to chase food
-     *      0 = does not chase
-     * 
-     *  splitDesire
-     *      factor of how likely it is to split at any given time
-     *      0 = never split, 1 = always split
-     * 
-     */
     constructor(){
-        this.fear = .5;
-        this.randomness = .5;
-        this.appetite = .5;
-        this.splitDesire = .5;
+        this.sightFactor = .5; // how far it can see
+        this.eatDistanceFactor = .5; // how far away it can eat
+        this.metabolismEfficiencyFactor = .5; // how inefficient metanolism is
+        this.fearFactor = .5; // how serious it takes threats
+        this.wanderDirectionFactor = .5; 
+        this.wanderMagnitudeFactor = .5;
+        this.foodDesireFactor = .5;
+        this.feedEfficiencyFactor = .5;
+        this.internalPullFactor = .5;
+        this.duplicateDistanceNeededFactor = .5;
+        this.duplicateGeneralInclinationFactor = .5;
+    }
+
+    splitFrom(from)
+    {
+        let keys = Object.keys(this);
+        for(let i = 0; i < keys.length; i++)
+        {
+            let key = keys[i];
+
+            let deviation = Math.random() * .2;
+            let newValue = from[key] - .1 + deviation;
+
+            if(newValue > 1) newValue = 1;
+            else if(newValue < 0) newValue = 0;
+            
+            this[key] = newValue;
+        }
+    }
+
+    toString()
+    {
+        let output = "";
+        let keys = Object.keys(this);
+        for(let i = 0; i < keys.length; i++)
+        {
+            output += keys[i] + ": " + this[keys[i]] + "\n";
+        }
+
+        return output;
     }
 }
