@@ -88,13 +88,13 @@ export class Buglet {
 
     runMetabolismMove()
     {
-        this.size-= this.size*this.genome.metabolismEfficiencyFactor*0.005;
+        this.size-= this.size*this.genome.metabolismEfficiencyFactor*0.03;
         if(this.size < MIN_SIZE) this.size = MIN_SIZE;        
     }
 
     runMetabolismWait()
     {
-        this.size-= this.size*this.genome.metabolismEfficiencyFactor*.001;
+        this.size-= this.size*this.genome.metabolismEfficiencyFactor*.01;
         if(this.size < MIN_SIZE) this.size = MIN_SIZE;        
     }
 

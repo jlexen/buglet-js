@@ -48,4 +48,13 @@ export class BugletGenome
 
         return output;
     }
+
+    zeroOut()
+    {
+        let keys = Object.keys(this);
+        for(let i = 0; i < keys.length; i++)
+        {
+            this[keys[i]] = 0;
+        }
+    }
 }

@@ -7,14 +7,16 @@
     <script type="module" >
         import { WorldManager } from "./js/WorldManager.mjs";
 
-        var worldManager = new WorldManager(200);
+        var worldManager = new WorldManager(50);
         worldManager.initialize();
         worldManager.startClock();
         
         document.body.onkeyup = function(e){
             if(e.keyCode == 32){
                 worldManager.pauseClockToggle();
+                alert(worldManager.buildPopulationReport());
             }
+            
         }
     </script>
 

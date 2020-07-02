@@ -3,6 +3,7 @@ import { LocationIndex } from "./LocationIndex.mjs";
 import { Canvas } from "./Canvas.mjs";
 import { BugletManager } from "./BugletManager.mjs";
 import { PlantletManager } from "./PlantletManager.mjs";
+import { ReportingManager } from "./ReportingManager.mjs";
 
 const WORLD_SIZE = 500;
 const SPAWN_OFFSET = 250;
@@ -26,7 +27,9 @@ export class WorldManager
         this.plantletManager.createRandomPlantlets(PLANTLET_COUNT);
 
         this.bugletManager = new BugletManager(WORLD_SIZE, SPAWN_OFFSET, BUGLET_SIZE_MAX, this.plantletManager);
-        this.bugletManager.createRandomBuglets(BUGLET_COUNT);        
+        this.bugletManager.createRandomBuglets(BUGLET_COUNT);     
+        
+        this.reportingManager = new ReportingManager(this.bugletManager);
     }
 
     startClock(){
@@ -65,4 +68,9 @@ export class WorldManager
         // log population
         console.log("Population: " + buglets.length);
     }  
+
+    buildPopulationReport()
+    {
+        return this.reportingManager.buildPopulationReport();
+    }
 }
