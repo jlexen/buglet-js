@@ -40,3 +40,6 @@ I am also interesting in creating a more interesting and visually pleasing envir
 My next steps will be to choose a better framework/language and/or game engine that will save me time on working on the UI and focus more on creating more interesting genetic scenarios. That leads me to my other goal, to introduce a more organic system of genetics mirroring better actual genetic code. 
 
 This is just the beginning! I am very interested in seeing how this project evolves and the turns it will take.
+
+#Running the app
+Please check out the app with this link: [Latest: V2 Buglet App](https://jlexen.github.io/buglet-js/v2/bugletworld.html)
