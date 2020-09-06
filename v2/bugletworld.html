@@ -14,7 +14,10 @@
         document.body.onkeyup = function(e){
             if(e.keyCode == 32){
                 worldManager.pauseClockToggle();
-                alert(worldManager.buildPopulationReport());
+                if(worldManager.pause)
+                {
+                    alert(worldManager.buildPopulationReport());
+                }                
             }
             
         }
@@ -22,18 +25,7 @@
 
 </head>
     
- <body > <!--</body> style="background-image: url('./img/dirt.png'); background-repeat: repeat" > -->
-       
-
-<!-- 
-    To rotate: transform: rotate(20deg)
-
-
- -->
-    <!-- <div style="background-image: Url('./img/plant.png'); transform: rotate(20deg); background-size: contain; height: 20px; width: 20px; position: absolute; top: 125px; left: 45px;"></div>
-    <div style="background-image: Url('./img/plant.png');background-size: contain; height: 20px; width: 20px; position: absolute; top: 100px; left: 70px;"></div>
-    <div style="background-image: Url('./img/bug.png');  transform: rotate(-135deg);  background-size: contain; height: 20px; width: 20px; position: absolute; top: 80px; left: 40px;"></div>
-    <div style="background-image: Url('./img/plant.png');background-size: contain; height: 20px; width: 20px; position: absolute; top: 200px; left: 40px;"></div>
-    <div style="background-image: Url('./img/plant.png');background-size: contain; height: 20px; width: 20px; position: absolute; top: 100px; left: 40px;"></div> -->
+ <body>
+     <h1>Press "Space" to pause and get genetic averages</h1>
 </body>
 </html>

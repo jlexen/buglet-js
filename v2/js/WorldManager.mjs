@@ -40,6 +40,7 @@ export class WorldManager
     pauseClockToggle()
     {
         this.pause = !this.pause;
+        return this.pause;
     }
 
     runClock() {
