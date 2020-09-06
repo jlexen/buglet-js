@@ -41,6 +41,6 @@ My next steps will be to choose a better framework/language and/or game engine t
 
 This is just the beginning! I am very interested in seeing how this project evolves and the turns it will take.
 
-# Running the app
+# Run it yourself!
 
 Please check out the app with this link: [Latest: V2 Buglet App](https://jlexen.github.io/buglet-js/v2/bugletworld.html)
