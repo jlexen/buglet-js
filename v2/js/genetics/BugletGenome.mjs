@@ -43,7 +43,7 @@ export class BugletGenome
         let keys = Object.keys(this);
         for(let i = 0; i < keys.length; i++)
         {
-            output += keys[i] + ": " + this[keys[i]] + "\n";
+            output += keys[i] + ": " + this[keys[i]].toFixed(2) + "\n";
         }
 
         return output;
